@@ -1,3 +1,5 @@
+import ChatBox from "./components/ChatBox"
+
 function App() {
   return (
     <>
@@ -7,7 +9,7 @@ function App() {
     
     
     <span>Start adding components!</span>
-
+    <ChatBox></ChatBox>
     </>
   )
 }
