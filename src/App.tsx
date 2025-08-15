@@ -1,17 +1,27 @@
-import ChatBox from "./components/ChatBox"
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ChatBox from './components/ChatBox';
+import Playground from './routes/Playground';
 
-function App() {
+const isDev = import.meta.env.DEV || import.meta.env.VITE_NODE_ENV === 'development';
+
+const App = () => {
   return (
-    <>
-    <h1 className="text-3xl font-bold underline">
-      Example React App
-    </h1>
-    
-    
-    <span>Start adding components!</span>
-    <ChatBox></ChatBox>
-    </>
-  )
-}
+    <Router>
+      <Routes>
+        <Route path="/" element={<ChatBox />} />
+        <Route 
+          path="/playground" 
+          element={
+            isDev ? (
+              <Playground />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          } 
+        />
+      </Routes>
+    </Router>
+  );
+};
 
-export default App
+export default App;
