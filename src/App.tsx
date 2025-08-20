@@ -3,7 +3,7 @@ import ChatBox from './components/ChatBox';
 import Playground from './routes/Playground';
 
 const isDev = import.meta.env.DEV || import.meta.env.VITE_NODE_ENV === 'development';
-
+console.log(isDev);
 const App = () => {
   return (
     <Router>
