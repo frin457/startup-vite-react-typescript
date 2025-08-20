@@ -21,7 +21,12 @@ const RippleDemo = forwardRef<RippleDemoRef>((_, ref) => {
           variant="danger"
           ripple={true}
           className="px-6 py-3 text-lg"
-        
+          options={{
+            color: 'rgb(69, 72, 211)',
+            duration: 3000,
+            maxSize: 2,
+            centered: false
+          }}
         >
           Click me for ripple effect!
         </Button>

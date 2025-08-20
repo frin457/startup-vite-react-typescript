@@ -1,9 +1,11 @@
 import React, { forwardRef, useRef, RefObject, useEffect } from 'react';
 import useRippleEffect from '../hooks/useRippleEffect';
+import { defaultRippleOptions } from '../hooks/types/ripple';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger';
-  ripple?: boolean | {
+  ripple?: boolean;
+  options?: {
     color?: string;
     duration?: number;
     maxSize?: number;
@@ -35,12 +37,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({
     // Always call the hook, but conditionally apply the effect
     useRippleEffect(
       buttonRef as RefObject<HTMLElement>,
-      ripple ? {
-        color: 'rgba(255, 255, 255, 0.5)',
-        duration: 600,
-        maxSize: 2,
-        centered: false
-      }: false
+      ripple ? props.options || defaultRippleOptions : null // defaultRippleOptions?
     );
   
     const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 relative overflow-hidden';

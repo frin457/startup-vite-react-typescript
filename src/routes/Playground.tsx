@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button, Dropdown, Tabs, Disclosure, Modal } from '../components';
 import RippleDemo from '../components/RippleDemo';
+import { RippleRef } from '../hooks/types/ripple';
 
 const ButtonsDemo = () => (
   <section className="space-y-4">
@@ -42,14 +43,19 @@ const ModalDemo = () => {
   );
 };
 
-const TabsDemo = () => (
-  <section className="space-y-4 pt-8 border-t border-gray-200">
-    <h2 className="text-xl font-semibold text-gray-800">Tabs</h2>
-    <div className="p-4 bg-white rounded-lg shadow">
-      <p className="text-gray-600">Tabs component demo would go here</p>
-    </div>
-  </section>
-);
+const TabsDemo = ({ onTabClick }: { onTabClick: () => void }) => {
+  return (
+    <section 
+      className="space-y-4 pt-8 border-t border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors p-4 rounded-lg"
+      onClick={onTabClick}
+    >
+      <h2 className="text-xl font-semibold text-gray-800">Tabs</h2>
+      <div className="p-4 bg-white rounded-lg shadow">
+        <p className="text-gray-600">Click to scroll to top and see ripple effect on active tab</p> 
+      </div>
+    </section>
+  );
+};
 
 const DisclosureDemo = () => (
   <section className="space-y-4 pt-8 border-t border-gray-200">
@@ -60,25 +66,41 @@ const DisclosureDemo = () => (
   </section>
 );
 
-const UIComponentsDemo = () => (
-  <div className="space-y-12">
-    <h1 className="text-3xl font-bold text-gray-900 mb-8">Headless UI Components</h1>
-    <ButtonsDemo />
-    <DropdownDemo />
-    <ModalDemo />
-    <TabsDemo />
-    <DisclosureDemo />
-  </div>
-);
 
 const Playground = () => {
+  const tabsRef = useRef<HTMLDivElement & RippleRef>(null);
+
+  const handleTabClick = () => {
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Trigger ripple effect on the active tab after scroll
+    setTimeout(() => {
+      if (tabsRef.current) {
+        tabsRef.current.triggerRipple();
+      }
+    }, 300);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Components Playground</h1>
         <Tabs 
+          ref={tabsRef}
           tabs={[
-            { name: 'UI Components', content: <UIComponentsDemo /> },
+            { 
+              name: 'UI Components', 
+              content: (
+                <div className="space-y-12">
+                  <ButtonsDemo />
+                  <DropdownDemo />
+                  <ModalDemo />
+                  <TabsDemo onTabClick={handleTabClick} />
+                  <DisclosureDemo />
+                </div>
+              ) 
+            },
             { name: 'Ripple Effect', content: <RippleDemo /> },
           ]} 
         />
