@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Button, Dropdown, Tabs, Disclosure, Modal } from '../components';
 import RippleDemo from '../components/RippleDemo';
-import { RippleRef } from '../hooks/types/ripple';
+import { TabsRef } from '../components/Tabs';
 
 const ButtonsDemo = () => (
   <section className="space-y-4">
@@ -68,7 +68,7 @@ const DisclosureDemo = () => (
 
 
 const Playground = () => {
-  const tabsRef = useRef<HTMLDivElement & RippleRef>(null);
+  const tabsRef = useRef<TabsRef>(null);
 
   const handleTabClick = () => {
     // Scroll to top
@@ -77,7 +77,7 @@ const Playground = () => {
     // Trigger ripple effect on the active tab after scroll
     setTimeout(() => {
       if (tabsRef.current) {
-        tabsRef.current.triggerRipple();
+        tabsRef.current.triggerEffect('ripple', { active: true });
       }
     }, 300);
   };
