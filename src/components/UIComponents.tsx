@@ -1,6 +1,7 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useRef } from 'react'
 import { Menu, Transition, Disclosure } from '@headlessui/react'
 import { ChevronDownIcon, ChevronUpDownIcon } from '@heroicons/react/24/outline'
+import { triggerRipple } from '../effects/ripple';
 
 // Button Component
 type ButtonProps = {
@@ -9,9 +10,35 @@ type ButtonProps = {
     className?: string
     onClick?: () => void
     type?: 'button' | 'submit' | 'reset'  
-  }
-export const Button = ({ children, variant = 'primary', className = '', ...props }: ButtonProps) => {
-  const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2'
+}
+
+export const Button = ({ children, variant = 'primary', className = '', onClick, ...props }: ButtonProps) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  useEffect(() => {
+    const button = buttonRef.current;
+    if (!button) return;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      triggerRipple(button, {
+        color: variant === 'primary' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.1)',
+        duration: 600,
+        maxSize: 1,
+        centered: false,
+        active: true,
+        clientX: e.clientX,
+        clientY: e.clientY
+      });
+    };
+
+    button.addEventListener('mousedown', handleMouseDown);
+    
+    return () => {
+      button.removeEventListener('mousedown', handleMouseDown);
+    };
+  }, [variant]);
+
+  const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 overflow-hidden relative';
   
   const variants = {
     primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
@@ -21,7 +48,9 @@ export const Button = ({ children, variant = 'primary', className = '', ...props
 
   return (
     <button
+      ref={buttonRef}
       className={`${baseStyles} ${variants[variant]} ${className}`}
+      onClick={onClick}
       {...props}
     >
       {children}

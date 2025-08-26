@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Button, Dropdown, Tabs, Disclosure, Modal } from '../components';
 import RippleDemo from '../components/RippleDemo';
 import { TabsRef } from '../components/Tabs';
+import { triggerRipple } from '../effects';
 
 const ButtonsDemo = () => (
   <section className="space-y-4">
@@ -69,17 +70,28 @@ const DisclosureDemo = () => (
 
 const Playground = () => {
   const tabsRef = useRef<TabsRef>(null);
-
+  
   const handleTabClick = () => {
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Get the active tab element
+    const activeTab = document.querySelector('.tab-button[data-active="true"]') as HTMLElement;
     
-    // Trigger ripple effect on the active tab after scroll
-    setTimeout(() => {
-      if (tabsRef.current) {
-        tabsRef.current.triggerEffect('ripple', { active: true });
-      }
-    }, 300);
+    if (activeTab) {
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // After scroll, trigger ripple on the active tab
+      setTimeout(() => {
+        if (tabsRef.current) {
+          // Trigger ripple on the active tab
+          triggerRipple(activeTab, {
+            color: 'rgba(59, 130, 246, 0.6)',
+            duration: 1600,
+            maxSize: 1.5,
+            centered: true
+          });
+        }
+      }, 300);
+    }
   };
 
   return (
