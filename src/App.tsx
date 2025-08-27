@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import ChatBox from './components/ChatBox';
 import Playground from './routes/Playground';
-import TestPage from './routes/TestPage';
 
 const isDev = import.meta.env.DEV || import.meta.env.VITE_NODE_ENV === 'development';
 
@@ -24,7 +23,6 @@ const App = () => {
           }
         />
         <Route path="/playground" element={<Playground />} />
-        <Route path="/test" element={<TestPage />} />
       </Routes>
     </Router>
   );
