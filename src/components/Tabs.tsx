@@ -47,19 +47,6 @@ const Tabs = forwardRef<TabsRef, TabsProps>(({
 
   const handleTabClick = (index: number) => {
     setActiveTab(index);
-    // console.log(e)
-    // Trigger ripple at (0,0) position of the tabs container
-    // if (tabsContainerRef.current) {
-    //   triggerEffect('ripple', {
-    //     ...effectOptions,
-    //     x: 0,  // 0% from left
-    //     y: 0,  // 0% from top
-    //     // clientX: tabsContainerRef.current.getBoundingClientRect().x,
-    //     // clientY: tabsContainerRef.current.getBoundingClientRect().y,
-    //     // centered: true,  // Center the ripple at the specified coordinates
-    //     active: true
-    //   });
-    // }
   };
 
   return (

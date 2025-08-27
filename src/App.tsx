@@ -9,7 +9,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/test" replace />} />
+        <Route path="/" element={<Navigate to="/playground" replace />} />
         <Route
           path="/chat"
           element={
@@ -18,7 +18,7 @@ const App = () => {
                 <ChatBox />
               </div>
             ) : (
-              <Navigate to="/test" replace />
+              <Navigate to="/playground" replace />
             )
           }
         />
