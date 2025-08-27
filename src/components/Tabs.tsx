@@ -1,57 +1,94 @@
-import { useState } from 'react';
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useAnimations } from '../hooks/useAnimations';
+import type { EffectType, EffectOptionsMap } from '../effects/types';
 
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(' ');
-}
+type TabItem = {
+  name: string;
+  content: React.ReactNode;
+  disabled?: boolean;
+};
 
-const Tabs = () => {
-  const [tabs] = useState([
-    { name: 'My Account', href: '#', current: true },
-    { name: 'Company', href: '#', current: false },
-    { name: 'Team Members', href: '#', current: false },
-    { name: 'Billing', href: '#', current: false },
-  ]);
+type TabsProps = {
+  tabs: TabItem[];
+  effectType?: EffectType;
+  effectOptions?: EffectOptionsMap[EffectType] & { active?: boolean };
+  className?: string;
+};
+
+export type TabsRef = {
+  triggerEffect: <K extends EffectType>(
+    type: K, 
+    options?: EffectOptionsMap[K] & { active?: boolean }
+  ) => void;
+};
+
+const Tabs = forwardRef<TabsRef, TabsProps>(({ 
+  tabs, 
+  effectOptions = { active: true },
+  className = ''
+}, ref) => {
+  const [activeTab, setActiveTab] = useState(0);
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize animations
+  const { triggerEffect } = useAnimations(tabsContainerRef, effectOptions);
+
+  // Expose the triggerEffect method through ref
+  useImperativeHandle(ref, () => ({
+    triggerEffect: <K extends EffectType>(
+      type: K, 
+      options?: EffectOptionsMap[K] & { active?: boolean }
+    ) => {
+      if (effectOptions.active && tabsContainerRef.current) {
+        triggerEffect(type, options);
+      }
+    }
+  }));
+
+  const handleTabClick = (index: number) => {
+    setActiveTab(index);
+  };
 
   return (
-    <div>
-      <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
-          Select a tab
-        </label>
-        <select
-          id="tabs"
-          name="tabs"
-          className="block w-full rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-          defaultValue={tabs.find((tab) => tab.current)?.name}
-        >
-          {tabs.map((tab) => (
-            <option key={tab.name}>{tab.name}</option>
-          ))}
-        </select>
-      </div>
-      <div className="hidden sm:block">
+    <div className={className}>
+      <div 
+        className="relative overflow-hidden"
+        ref={tabsContainerRef}
+      >
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-            {tabs.map((tab) => (
-              <a
+          <nav className="-mb-px flex space-x-8">
+            {tabs.map((tab, index) => (
+              <button
                 key={tab.name}
-                href={tab.href}
+                onClick={() => handleTabClick(index)}
+                disabled={tab.disabled}
                 className={classNames(
-                  tab.current
+                  index === activeTab
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                  'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
+                  'tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
+                  tab.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                 )}
-                aria-current={tab.current ? 'page' : undefined}
+                data-active={index === activeTab ? 'true' : 'false'}
               >
                 {tab.name}
-              </a>
+              </button>
             ))}
           </nav>
         </div>
       </div>
+      <div className="mt-4">
+        {tabs[activeTab]?.content}
+      </div>
     </div>
   );
-};
+});
+
+// Helper function for class names
+function classNames(...classes: (string | boolean | undefined)[]): string {
+  return classes.filter(Boolean).join(' ');
+}
+
+Tabs.displayName = 'Tabs';
 
 export default Tabs;
