@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { Button, Dropdown, Tabs, Disclosure, Modal } from '../components';
 import RippleDemo from '../components/RippleDemo';
+import FireworkDemo from '../components/FireworkDemo';
+import BurningDemo from '../components/BurningDemo';
 import { TabsRef } from '../components/Tabs';
 import { triggerRipple } from '../effects';
 
@@ -95,9 +97,10 @@ const Playground = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Components Playground</h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Effects Playground</h1>
+        
         <Tabs 
           ref={tabsRef}
           tabs={[
@@ -114,6 +117,8 @@ const Playground = () => {
               ) 
             },
             { name: 'Ripple Effect', content: <RippleDemo /> },
+            { name: 'Firework Effect', content: <FireworkDemo /> },
+            { name: 'Burning Effect', content: <BurningDemo /> },
           ]} 
         />
       </div>

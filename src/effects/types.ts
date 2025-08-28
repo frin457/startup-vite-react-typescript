@@ -1,4 +1,4 @@
-export type EffectType = 'ripple' | 'scale' | 'fade';
+export type EffectType = 'ripple' | 'scale' | 'fade' | 'firework' | 'burning';
 
 export interface RippleOptions {
   color?: string;
@@ -22,10 +22,30 @@ export interface FadeOptions {
   opacity?: number;
 }
 
+export interface FireworkOptions {
+  duration?: number;
+  intensity?: number;
+  colorStops?: string[];
+  active?: boolean;
+  particleSize?: number;
+  spread?: number;
+}
+
+export interface BurningOptions {
+  duration?: number;
+  intensity?: number;
+  colorStops?: string[];
+  active?: boolean;
+  flameHeight?: number;
+  flickerSpeed?: number;
+}
+
 export interface EffectOptionsMap {
   ripple: RippleOptions;
   scale: ScaleOptions;
   fade: FadeOptions;
+  firework: FireworkOptions;
+  burning: BurningOptions;
 }
 
 export type EffectHandler<T extends HTMLElement = HTMLElement, O extends object = Record<string, never>> = (
