@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { Button, Dropdown, Tabs, Disclosure, Modal } from '../components';
 import RippleDemo from '../components/RippleDemo';
-import FireworkDemo from '../components/FireworkDemo';
 import BurningDemo from '../components/BurningDemo';
 import { TabsRef } from '../components/Tabs';
-import { triggerRipple } from '../effects';
+import { triggerFirework, triggerRipple } from '../effects';
+import Firework from '../components/FireworkDemo';
 
 const ButtonsDemo = () => (
   <section className="space-y-4">
@@ -87,10 +87,25 @@ const Playground = () => {
           // Trigger ripple on the active tab
           triggerRipple(activeTab, {
             color: 'rgba(59, 130, 246, 0.6)',
-            duration: 1600,
+            duration: 1200,
             maxSize: 1.5,
             centered: true
           });
+          triggerFirework(activeTab, {
+            duration: 1700,
+            intensity: 2.5,
+            colorStops: [         
+              'rgba(66, 93, 245, 0.8)',
+              'rgba(173, 172, 170, 0.6)',
+              'rgba(48, 34, 255, 0.4)',
+              'rgba(69, 109, 168, 0.88)'
+            ],
+            active: true, 
+            particleSize: 10,
+            spread: 1.5,
+            inverted: true
+          });
+          
         }
       }, 300);
     }
@@ -117,7 +132,7 @@ const Playground = () => {
               ) 
             },
             { name: 'Ripple Effect', content: <RippleDemo /> },
-            { name: 'Firework Effect', content: <FireworkDemo /> },
+            { name: 'Firework Effect', content: <Firework /> },
             { name: 'Burning Effect', content: <BurningDemo /> },
           ]} 
         />

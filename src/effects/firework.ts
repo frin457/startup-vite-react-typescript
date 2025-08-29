@@ -4,9 +4,10 @@ interface FireworkOptions {
   duration?: number;
   intensity?: number;
   colorStops?: string[];
-  active?: boolean;
   particleSize?: number;
   spread?: number;
+  active?: boolean;
+  inverted?: boolean;
 }
 
 const defaultOptions: FireworkOptions = {
@@ -20,7 +21,8 @@ const defaultOptions: FireworkOptions = {
     'rgba(255, 200, 0, 0.4)', // Yellow-orange
     'rgba(255, 255, 0, 0.2)'  // Yellow
   ],
-  active: true
+  active: true,
+  inverted: false
 };
 
 function createParticle(size: number) {
@@ -33,23 +35,26 @@ function createParticle(size: number) {
     pointerEvents: 'none',
     transformOrigin: 'center center',
     willChange: 'transform, opacity',
-    zIndex: '9999'
+    zIndex: '999'
   });
   return particle;
 }
 
-function getRandomPositionOnBorder(rect: DOMRect): {x: number, y: number} {
-  const perimeter = 2 * (rect.width + rect.height);
-  const randomPos = Math.random() * perimeter;
+function getRandomPositionOnBorder(rect: DOMRect,particleSize: number, inverted: boolean): {x: number, y: number} {
+  // Choose a random edge (0: top, 1: right, 2: bottom, 3: left)
+  const edge = Math.floor(Math.random() * 4);
   
-  if (randomPos < rect.width) {
-    return { x: randomPos, y: 0 };
-  } else if (randomPos < rect.width + rect.height) {
-    return { x: rect.width, y: randomPos - rect.width };
-  } else if (randomPos < 2 * rect.width + rect.height) {
-    return { x: (2 * rect.width + rect.height) - randomPos, y: rect.height };
-  } else {
-    return { x: 0, y: perimeter - randomPos };
+  switch (edge) {
+    case 0: // Top edge
+      return { x: Math.random() * rect.width, y: 0  };
+    case 1: // Right edge
+      return { x: rect.width - (inverted ? (particleSize * 2) : 0), y: Math.random() * rect.height };
+    case 2: // Bottom edge
+      return { x: Math.random() * rect.width, y: rect.height - (inverted ? (particleSize * 1.4) : 0) };
+    case 3: // Left edge
+      return { x: 0 , y: Math.random() * rect.height };
+    default:
+      return { x: 0, y: 0 };
   }
 }
 
@@ -61,42 +66,84 @@ function animateFirework(element: HTMLElement, options: FireworkOptions = {}) {
   const particles: HTMLDivElement[] = [];
   const particleCount = Math.floor(20 * intensity);
   
+  // Ensure the element has relative or absolute positioning
+  const elementPosition = window.getComputedStyle(element).position;
+  if (elementPosition === 'static') {
+    element.style.position = 'relative';
+  }
+  
   for (let i = 0; i < particleCount; i++) {
     const particle = createParticle(particleSize);
     const color = colorStops[Math.floor(Math.random() * colorStops.length)] || 'orange';
     
-    const { x, y } = getRandomPositionOnBorder(rect);
+    // Get position relative to the element
+    const { x, y } = getRandomPositionOnBorder(rect,particleSize, options.inverted ?? false);
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
+
+    // Calculate direction from center to edge
     const angle = Math.atan2(y - centerY, x - centerX);
-    const distance = Math.min(rect.width, rect.height) * 0.5 * spread;
+    const distance = Math.min(rect.width, rect.height) * 0.1 * spread;
     
-    const endX = x + Math.cos(angle) * distance * (0.5 + Math.random() * 0.5);
-    const endY = y + Math.sin(angle) * distance * (0.5 + Math.random() * 0.5);
+    // Calculate end position (inward from the edge)
+    const endX = centerX + Math.cos(angle) * distance * (0.5 + Math.random() );
+    const endY = centerY + Math.sin(angle) * distance * (0.5 + Math.random() );
     
+    // Position the particle relative to the element
     Object.assign(particle.style, {
-      left: `${x}px`,
-      top: `${y}px`,
-      background: color,
-      boxShadow: `0 0 ${5 + Math.random() * 10}px ${color}`
+      left: `${ options.inverted ? x : centerX}px`,
+      top: `${ options.inverted ? y : centerY}px`,
+      backgroundColor: color,
+      opacity: '0.8',
+      transform: 'scale(1)'
     });
     
-    element.style.position = 'relative';
-    element.style.overflow = 'visible';
     element.appendChild(particle);
     particles.push(particle);
     
-    const animation = particle.animate(
-      [
+    // Base animation keyframes
+    const keyframes: Keyframe[] = [
+      { 
+        transform: 'scale(1)',
+        opacity: 1
+      },
+      { 
+        transform: options.inverted 
+          ? `translate(${endX - x}px, ${endY - y}px) scale(${0.2 + Math.random()})` //firework in
+          : `translate(${x - endX}px, ${y - endY}px) scale(${0.2 + Math.random()})`, //firework out
+        opacity: 0
+      }
+    ];
+    
+    // Add additional steps for firework out
+    if (!options.inverted) {
+      keyframes.push(
         { 
-          transform: 'scale(1)',
-          opacity: 1
+          transform: `translate(${x - endX - ((options.intensity ?? 5) + Math.random())}px, ${y - endY - ((options.intensity ?? 5) + Math.random()) * 0.5}px) scale(${0.1 + Math.random()})`,
+          opacity: 0.5
         },
         { 
-          transform: `translate(${endX - x}px, ${endY - y}px) scale(${0.2 + Math.random() * 0.3})`,
+          transform: `translate(${x - endX - ((options.intensity ?? 5) + Math.random()) * 0.5}px, ${y - endY - ((options.intensity ?? 5) + Math.random()) * 0.5}px) scale(${0.1 + Math.random()})`,
           opacity: 0
         }
-      ],
+      );
+    } else {
+      // For firework in, just add the final opacity change
+    //   keyframes.unshift({ 
+    //     transform: `scale(${0.1 + Math.random()})`,
+    //     opacity: 1
+    //   },
+    //   { 
+    //     transform: `scale(1)`,
+    //     opacity: 0.5
+    //   });
+      keyframes.push({
+        opacity: 0
+      });
+    }
+
+    const animation = particle.animate(
+      keyframes,
       {
         duration: (duration || 1000) * (0.8 + Math.random() * 0.4),
         easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
