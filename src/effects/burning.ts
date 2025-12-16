@@ -61,7 +61,7 @@ function animateBurning(element: HTMLElement, options: BurningOptions = {}) {
   
   // Create flame particles
   for (let i = 0; i < particleCount; i++) {
-    const { particle, width, height } = createFlameParticle();
+    const { particle, height } = createFlameParticle();
     const color = colorStops[Math.floor(Math.random() * colorStops.length)] || 'orange';
     
     // Position particles at the bottom of the element
@@ -70,7 +70,7 @@ function animateBurning(element: HTMLElement, options: BurningOptions = {}) {
     
     // Random flicker movement
     const flickerX = (Math.random() - 0.5) * 15 * flickerSpeed;
-    const flickerY = (Math.random() - 0.5) * 5 * flickerSpeed;
+    // const flickerY = (Math.random() - 0.5) * 5 * flickerSpeed;
     
     // Random scale for natural look
     const startScale = 0.5 + Math.random() * 0.5;
