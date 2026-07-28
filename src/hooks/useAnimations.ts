@@ -9,7 +9,7 @@ export type EffectsRef = {
 };
 
 export function useAnimations<T extends HTMLElement, K extends EffectType>(
-  ref: RefObject<T>,
+  ref: RefObject<T | null>,
   options: EffectOptionsMap[K] & { active?: boolean } = { active: true }
 ): EffectsRef {
   // Return methods to trigger effects programmatically
