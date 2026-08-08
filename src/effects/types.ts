@@ -1,14 +1,28 @@
-export type EffectType = 'ripple' | 'scale' | 'fade' | 'firework' | 'burning';
+export type EffectType =
+  | 'ripple'
+  | 'scale'
+  | 'fade'
+  | 'firework'
+  | 'burning';
 
 export interface RippleOptions {
   color?: string;
   duration?: number;
   maxSize?: number;
   centered?: boolean;
-  x?: number;  // Relative position (0-1)
-  y?: number;  // Relative position (0-1)
-  clientX?: number;  // Absolute position
-  clientY?: number;  // Absolute position
+
+  /** Relative position (0-1). */
+  x?: number;
+
+  /** Relative position (0-1). */
+  y?: number;
+
+  /** Absolute viewport position. */
+  clientX?: number;
+
+  /** Absolute viewport position. */
+  clientY?: number;
+
   active?: boolean;
 }
 
@@ -31,6 +45,16 @@ export interface FireworkOptions {
   spread?: number;
 }
 
+export type BurningOrigin =
+  | {
+      type: 'element';
+    }
+  | {
+      type: 'point';
+      x: number;
+      y: number;
+    };
+
 export interface BurningOptions {
   duration?: number;
   intensity?: number;
@@ -38,6 +62,7 @@ export interface BurningOptions {
   active?: boolean;
   flameHeight?: number;
   flickerSpeed?: number;
+  origin?: BurningOrigin;
 }
 
 export interface EffectOptionsMap {
@@ -48,7 +73,10 @@ export interface EffectOptionsMap {
   burning: BurningOptions;
 }
 
-export type EffectHandler<T extends HTMLElement = HTMLElement, O extends object = Record<string, never>> = (
+export type EffectHandler<
+  T extends HTMLElement = HTMLElement,
+  O extends object = Record<string, never>
+> = (
   element: T,
   options: O
 ) => (() => void) | void;
@@ -69,7 +97,7 @@ export function registerEffect<K extends EffectType>(
 ): void {
   effectRegistry[name] = {
     handler,
-    defaultOptions: defaultOptions || {} as EffectOptionsMap[K]
+    defaultOptions: defaultOptions ?? ({} as EffectOptionsMap[K])
   };
 }
 

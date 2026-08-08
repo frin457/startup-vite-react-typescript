@@ -93,7 +93,6 @@ registerEffect('ripple', (element, options: RippleOptions = {}) => {
   };
 }, defaultOptions);
 
-// Export for programmatic use
 export function triggerRipple(
   element: HTMLElement, 
   options: RippleOptions = {}
