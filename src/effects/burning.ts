@@ -38,22 +38,72 @@ function createFlameParticle() {
   return { particle, width, height };
 }
 
-function getParticleOrigin(
-  rect: DOMRect,
-  origin: BurningOrigin,
-  height: number
-) {
-  if (origin.type === 'point') {
+function getElementOrigin(rect: DOMRect, height: number) {
+  return {
+    x: Math.random() * rect.width,
+    y: rect.height - height / 2 
+  };
+}
+
+function getPointOrigin(origin: BurningOrigin, height: number) {
+if (origin.type === 'point') {
     return {
       x: origin.x,
       y: origin.y - height / 2
     };
   }
+  
+}
+
+function getBorderOrigin(rect: DOMRect) {
+  const perimeter =
+    2 * rect.width +
+    2 * rect.height;
+
+  const distance = Math.random() * perimeter;
+
+  if (distance < rect.width) {
+    return {
+      x: distance,
+      y: 0
+    };
+  }
+
+  if (distance < rect.width + rect.height) {
+    return {
+      x: rect.width,
+      y: distance - rect.width
+    };
+  }
+
+  if (distance < 2 * rect.width + rect.height) {
+    return {
+      x: rect.width - (distance - rect.width - rect.height),
+      y: rect.height
+    };
+  }
 
   return {
-    x: Math.random() * rect.width,
-    y: rect.height - height / 2
+    x: 0,
+    y: rect.height - (distance - 2 * rect.width - rect.height)
   };
+}
+
+function getParticleOrigin(
+  rect: DOMRect,
+  origin: BurningOrigin,
+  height: number
+) {
+  switch (origin.type) {
+    case 'element':
+      return getElementOrigin(rect, height);
+
+    case 'border':
+      return getBorderOrigin(rect);
+
+    case 'point':
+      return getPointOrigin(origin, height);
+  }
 }
 
 function animateBurning(
@@ -84,7 +134,7 @@ function animateBurning(
       colorStops[Math.floor(Math.random() * colorStops.length)] ||
       'orange';
 
-    const { x, y } = getParticleOrigin(rect, origin, height);
+    const { x, y } = getParticleOrigin(rect, origin, height) || {};
 
     // Random flicker movement
     const flickerX = (Math.random() - 0.5) * 15 * flickerSpeed;

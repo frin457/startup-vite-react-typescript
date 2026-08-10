@@ -12,6 +12,7 @@ import Button from './Button';
 export interface BurningDemoRef {
   triggerBurning: (options?: BurningOptions) => void;
   triggerBurningAtPoint: (x: number, y: number) => void;
+  triggerBurningBorders: () => void;
 }
 
 const defaultBurningOptions: BurningOptions = {
@@ -35,7 +36,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   const targetRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Trigger the burning effect using the element as the origin.
+   * Trigger the burning effect using the element origin.
+   * This produces the traditional bottom-up burning effect.
    */
   const handleTriggerBurning = (options: BurningOptions = {}) => {
     if (!targetRef.current) return;
@@ -43,7 +45,9 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
     triggerBurning(targetRef.current, {
       ...defaultBurningOptions,
       ...options,
-      origin: options.origin ?? { type: 'element' }
+      origin: options.origin ?? {
+        type: 'element'
+      }
     });
   };
 
@@ -60,6 +64,21 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
         type: 'point',
         x,
         y
+      }
+    });
+  };
+
+  /**
+   * Trigger the burning effect across the entire
+   * border of the target element.
+   */
+  const handleTriggerBurningBorders = () => {
+    if (!targetRef.current) return;
+
+    triggerBurning(targetRef.current, {
+      ...defaultBurningOptions,
+      origin: {
+        type: 'border'
       }
     });
   };
@@ -83,7 +102,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     triggerBurning: handleTriggerBurning,
-    triggerBurningAtPoint: handleTriggerBurningAtPoint
+    triggerBurningAtPoint: handleTriggerBurningAtPoint,
+    triggerBurningBorders: handleTriggerBurningBorders
   }));
 
   return (
@@ -93,8 +113,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
       </h2>
 
       <p className="text-sm text-gray-600 text-center max-w-md">
-        This demo supports both element-based and point-based
-        burning origins.
+        This demo supports element-based, border-based, and
+        point-based burning origins.
       </p>
 
       {/* Target element */}
@@ -108,8 +128,9 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
         </span>
       </div>
 
-      {/* Element-origin burning */}
+      {/* Burning controls */}
       <div className="flex flex-wrap justify-center gap-3">
+        {/* Element-origin burning */}
         <Button
           onClick={() =>
             handleTriggerBurning({
@@ -121,6 +142,14 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
           className="px-6 py-3 text-lg bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors"
         >
           Burn From Bottom
+        </Button>
+
+        {/* Border-origin burning */}
+        <Button
+          onClick={handleTriggerBurningBorders}
+          className="px-6 py-3 text-lg bg-gradient-to-r from-red-500 to-orange-600 text-white hover:from-red-600 hover:to-orange-700 transition-colors"
+        >
+          Burn All Borders
         </Button>
 
         {/* Point-origin burning */}
@@ -143,8 +172,13 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
 
       <div className="text-sm text-gray-600 text-center max-w-md space-y-2">
         <p>
-          <strong>Burn From Bottom:</strong> uses the element
-          origin and produces the traditional burning effect.
+          <strong>Burn From Bottom:</strong> flames originate
+          along the bottom edge of the element.
+        </p>
+
+        <p>
+          <strong>Burn All Borders:</strong> flames originate
+          around the entire perimeter of the element.
         </p>
 
         <p>
@@ -153,9 +187,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
         </p>
 
         <p>
-          <strong>Click the target:</strong> converts the mouse
-          position into element-relative coordinates and starts
-          the burning effect at that point.
+          <strong>Click the target:</strong> starts the burning
+          effect at the clicked point.
         </p>
       </div>
     </div>
@@ -165,4 +198,3 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
 BurningDemo.displayName = 'BurningDemo';
 
 export default BurningDemo;
-

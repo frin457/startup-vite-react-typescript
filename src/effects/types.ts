@@ -46,14 +46,9 @@ export interface FireworkOptions {
 }
 
 export type BurningOrigin =
-  | {
-      type: 'element';
-    }
-  | {
-      type: 'point';
-      x: number;
-      y: number;
-    };
+  | { type: 'element' }
+  | { type: 'border' }
+  | { type: 'point'; x: number; y: number };
 
 export interface BurningOptions {
   duration?: number;
