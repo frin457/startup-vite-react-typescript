@@ -4,7 +4,7 @@ import {
   useRef
 } from 'react';
 
-import { triggerBurning } from '../effects/burning';
+import { useAnimations } from '../hooks/useAnimations';
 import type { BurningOptions } from '../effects/types';
 
 import Button from './Button';
@@ -13,6 +13,7 @@ export interface BurningDemoRef {
   triggerBurning: (options?: BurningOptions) => void;
   triggerBurningAtPoint: (x: number, y: number) => void;
   triggerBurningBorders: () => void;
+  triggerContinuousBurning: () => void;
 }
 
 const defaultBurningOptions: BurningOptions = {
@@ -35,14 +36,21 @@ const defaultBurningOptions: BurningOptions = {
 const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   const targetRef = useRef<HTMLDivElement>(null);
 
-  /**
-   * Trigger the burning effect using the element origin.
-   * This produces the traditional bottom-up burning effect.
-   */
-  const handleTriggerBurning = (options: BurningOptions = {}) => {
-    if (!targetRef.current) return;
+  const { triggerEffect } = useAnimations<
+    HTMLDivElement,
+    'burning'
+  >(
+    targetRef,
+    defaultBurningOptions
+  );
 
-    triggerBurning(targetRef.current, {
+  /**
+   * Trigger a single burning cycle using the element origin.
+   */
+  const handleTriggerBurning = (
+    options: BurningOptions = {}
+  ) => {
+    triggerEffect('burning', {
       ...defaultBurningOptions,
       ...options,
       origin: options.origin ?? {
@@ -52,13 +60,14 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   };
 
   /**
-   * Trigger the burning effect from a point relative
-   * to the target element.
+   * Trigger a single burning cycle from a point
+   * relative to the target element.
    */
-  const handleTriggerBurningAtPoint = (x: number, y: number) => {
-    if (!targetRef.current) return;
-
-    triggerBurning(targetRef.current, {
+  const handleTriggerBurningAtPoint = (
+    x: number,
+    y: number
+  ) => {
+    triggerEffect('burning', {
       ...defaultBurningOptions,
       origin: {
         type: 'point',
@@ -69,13 +78,11 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   };
 
   /**
-   * Trigger the burning effect across the entire
-   * border of the target element.
+   * Trigger a single burning cycle across the
+   * entire border of the target element.
    */
   const handleTriggerBurningBorders = () => {
-    if (!targetRef.current) return;
-
-    triggerBurning(targetRef.current, {
+    triggerEffect('burning', {
       ...defaultBurningOptions,
       origin: {
         type: 'border'
@@ -84,7 +91,23 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   };
 
   /**
-   * Convert a mouse position from viewport coordinates
+   * Trigger a continuous burning effect.
+   *
+   * effectPeriod is expressed in seconds.
+   * 0.4 = new flame batch every 400ms.
+   */
+  const handleTriggerContinuousBurning = () => {
+    triggerEffect('burning', {
+      ...defaultBurningOptions,
+      origin: {
+        type: 'border'
+      },
+      effectPeriod: 0.4
+    });
+  };
+
+  /**
+   * Convert the mouse position from viewport coordinates
    * into coordinates relative to the target element.
    */
   const handleTargetClick = (
@@ -92,7 +115,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   ) => {
     if (!targetRef.current) return;
 
-    const rect = targetRef.current.getBoundingClientRect();
+    const rect =
+      targetRef.current.getBoundingClientRect();
 
     handleTriggerBurningAtPoint(
       event.clientX - rect.left,
@@ -103,7 +127,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
   useImperativeHandle(ref, () => ({
     triggerBurning: handleTriggerBurning,
     triggerBurningAtPoint: handleTriggerBurningAtPoint,
-    triggerBurningBorders: handleTriggerBurningBorders
+    triggerBurningBorders: handleTriggerBurningBorders,
+    triggerContinuousBurning: handleTriggerContinuousBurning
   }));
 
   return (
@@ -113,8 +138,8 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
       </h2>
 
       <p className="text-sm text-gray-600 text-center max-w-md">
-        This demo supports element-based, border-based, and
-        point-based burning origins.
+        This demo supports element-based, border-based,
+        point-based, and continuous burning effects.
       </p>
 
       {/* Target element */}
@@ -157,16 +182,25 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
           onClick={() => {
             if (!targetRef.current) return;
 
-            const rect = targetRef.current.getBoundingClientRect();
+            const rect =
+              targetRef.current.getBoundingClientRect();
 
             handleTriggerBurningAtPoint(
               rect.width / 2,
               rect.height / 2
             );
           }}
-          className="px-6 py-3 text-lg bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:from-yellow-600 hover:to-orange-700 transition-colors"
+          className="px-6 py-3 text-lg bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:from-yellow-600 hover:to-yellow-700 transition-colors"
         >
           Burn From Center
+        </Button>
+
+        {/* Continuous burning */}
+        <Button
+          onClick={handleTriggerContinuousBurning}
+          className="px-6 py-3 text-lg bg-gradient-to-r from-red-600 to-orange-700 text-white hover:from-red-700 hover:to-orange-800 transition-colors"
+        >
+          Continuous Burn
         </Button>
       </div>
 
@@ -189,6 +223,12 @@ const BurningDemo = forwardRef<BurningDemoRef>((_, ref) => {
         <p>
           <strong>Click the target:</strong> starts the burning
           effect at the clicked point.
+        </p>
+
+        <p>
+          <strong>Continuous Burn:</strong> uses the shared
+          effect scheduler to create a new border-burning cycle
+          every 0.4 seconds.
         </p>
       </div>
     </div>

@@ -67,6 +67,10 @@ export interface EffectOptionsMap {
   firework: FireworkOptions;
   burning: BurningOptions;
 }
+export interface EffectExecutionOptions {
+  active?: boolean;
+  effectPeriod?: number;
+}
 
 export type EffectHandler<
   T extends HTMLElement = HTMLElement,
